@@ -15,6 +15,8 @@
         var scene = new THREE.Scene();
         var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 50);
 
+        let time = Date.now();
+
         var renderer = new THREE.WebGLRenderer({
             alpha: true
         });
@@ -27,10 +29,11 @@
         var sphere = new THREE.Mesh(geometry, wireframeMaterial);
         scene.add(sphere);
 
-        for ( var i = 0; i < N; i++) {
+        for (i = 0; i < N; i++) {
             var geometry = new THREE.SphereGeometry(0.05, 50, 50);
             var wireframeMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: false, transparent: false }); 
             var pointG = new THREE.Mesh(geometry, wireframeMaterial);
+            pointG.isPoint__ = true;
             scene.add(pointG);
             pointG.position.set(i * 0.5 + 1.0, i * 0.5 + 1.0, i * 0.5 + 1.0);
         }
@@ -49,10 +52,24 @@
         });
 
         camera.position.z = 30;
-        var render = function () {
+
+        function random(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        var render = () => {
             requestAnimationFrame(render);
 
             controls.update();
+
+            var nw = (Date.now() / 1000).toFixed();
+            for (i = 0; i < scene.children.length; i++) {
+                var object = scene.children[i];
+                if (object.isPoint__ != undefined) {
+                    object.position.x += 0.05
+                }
+            }
+
             renderer.render(scene, camera);
         };
 
