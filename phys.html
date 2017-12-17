@@ -40,7 +40,7 @@
         var points = [];
         var v = [];
 
-        var ttt = new.THREE.Vector3();
+        var ttt = new THREE.Vector3();
         
         for (i = 0; i < N; i++) {
             var geometry = new THREE.SphereGeometry(0.05, 50, 50);
@@ -69,24 +69,19 @@
 
         camera.position.z = 30;
 
-function calc() {
-    for (int i = 0; i < N; i++) {
-        var ax = 0, ay = 0, az = 0;
-        for (int j = 0; j < N; j++) {
-            if (i != j) {
-                r = points[i].distanceTo(points[j]);
-                a = (new Vector3(points[j].x - points[i].x,points[j].y - points[i].y, points[j].z - points[i].z)).normalize().multiplyScalar(1 / Math.pow(r,2));
-
-                
-         //       ax += (points[j].x - points[i].x) / (Math.pow(r,2);
-          //   ay += (points[j].x - points[i].y) / (Math.pow(r,2);
-           //     az += (points[j].z - points[i].z) / (Math.pow(r,2);
+        function calc() {
+            for (i = 0; i < N; i++) {
+                var ax = 0, ay = 0, az = 0;
+                for (j = 0; j < N; j++) {
+                    if (i != j) {
+                        r = points[i].distanceTo(points[j]);
+                        a = (new THREE.Vector3(points[j].x - points[i].x,points[j].y - points[i].y, points[j].z - points[i].z)).normalize().multiplyScalar(1 / Math.pow(r, 2));
+                    }
+                }
+                v[i].add(a.multiplyScalar(dT));
+                points[i].add(v[i].multiplyScalar(dT));
             }
         }
-        vx[i].add(a.multiplyScalar(dT));
-        points[i].add(vx[i].multiplyScalar(dT));
-    }
-}
 
         var render = () => {
             requestAnimationFrame(render);
@@ -96,18 +91,18 @@ function calc() {
             var t = clock.getDelta();
             temp += t;
             if (temp > 0.05) {
-            calc();
-            flag = 0;
-            for (i = 0; i < scene.children.length; i++) {
-                var object = scene.children[i];
-                if (object.isPoint__ != undefined) {
-                    if (flag == 0) {
-                        flag = 1;
-                        u = i;
+                calc();
+                flag = 0;
+                for (i = 0; i < scene.children.length; i++) {
+                    var object = scene.children[i];
+                    if (object.isPoint__ != undefined) {
+                        if (flag == 0) {
+                            flag = 1;
+                            u = i;
+                        }
+                        object.position.copy(points[i - u]);
                     }
-                    object.position.copy(points[u-i]);
                 }
-            }
                 temp = 0;
             }
             renderer.render(scene, camera);
