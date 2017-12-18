@@ -10,9 +10,22 @@
 <body>
     <script>
         const sphereRadius = 10;
-        const N = 10;
-        const FF = 0.01; //friction force
-        const dT = 0.1;  
+        const N = 2;
+	const power = 2;
+	const pointRadius = 0.5;
+        const FF = 0.5; //friction force
+        const dT = 0.01;  
+
+	var clock = new THREE.Clock();
+        var temp = 0;
+        
+        var debug = 0;
+        var points = [];
+	var charge = [];
+        var v = []; // velocity
+
+        var emptyVector = new THREE.Vector3();
+
         function random(min, max) {
             return Math.random() * (max - min) + min;
         }
@@ -20,7 +33,6 @@
         var scene = new THREE.Scene();
         var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 50);
 
-        let time = Date.now();
 
         var renderer = new THREE.WebGLRenderer({
             alpha: true
@@ -34,21 +46,18 @@
         var sphere = new THREE.Mesh(geometry, wireframeMaterial);
         scene.add(sphere);
 
-        var clock = new THREE.Clock();
-        var temp = 0;
-
-        var points = [];
-        var v = [];
-
-        var ttt = new THREE.Vector3();
+        
         
         for (i = 0; i < N; i++) {
-            var geometry = new THREE.SphereGeometry(0.05, 50, 50);
+            var geometry = new THREE.SphereGeometry(pointRadius, 4, 4);
             var wireframeMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: false, transparent: false }); 
             var pointG = new THREE.Mesh(geometry, wireframeMaterial);
             var point = new THREE.Vector3(random(-5.9,5.9),random(-5.9,5.9),random(-5.9,5.9));
             points.push(point);
-            v.push(ttt);
+
+            v.push(emptyVector); // add speed 0
+
+	    charge.push((i % 2 == 0) ? -1 : 1); // add charge 
             pointG.isPoint__ = true;
             scene.add(pointG);
             pointG.position.copy(point);
@@ -70,18 +79,44 @@
         camera.position.z = 30;
 
         function calc() {
+            var a;
             for (i = 0; i < N; i++) {
-                var ax = 0, ay = 0, az = 0;
+
+                a = emptyVector;
                 for (j = 0; j < N; j++) {
+
                     if (i != j) {
                         r = points[i].distanceTo(points[j]);
-                        a = (new THREE.Vector3(points[j].x - points[i].x,points[j].y - points[i].y, points[j].z - points[i].z)).normalize().multiplyScalar(1 / Math.pow(r, 2));
+
+			
+				
+			var sumCharge = charge[i] * charge[j];
+			var norm = (new THREE.Vector3(points[j].x - points[i].x,points[j].y - points[i].y, points[j].z - points[i].z)).normalize();
+                        var f = norm.multiplyScalar(sumCharge / Math.pow(r, power));
+			
+			a.add(f);
+			
                     }
                 }
-                v[i].add(a.multiplyScalar(dT));
-                points[i].add(v[i].multiplyScalar(dT));
+		
+		var aNew = a.clone();
+                v[i].add(aNew.multiplyScalar(dT));
+		var vNew = v[i].clone();
+		
+                points[i].add(vNew.multiplyScalar(dT * FF));
+		
+
             }
+
+                
         }
+
+	function printTwent(o) {
+		if (debug < 20) {
+			console.log(o);
+			debug++;
+		}
+	}
 
         var render = () => {
             requestAnimationFrame(render);
