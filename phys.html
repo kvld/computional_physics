@@ -10,10 +10,10 @@
 <body>
     <script>
         const sphereRadius = 10;
-        const N = 10;
+        const N = 70;
 	const power = 2;
 	const pointRadius = 0.1;
-        const FF = 0.7; //friction force
+        const FF = 0.1; //friction force
         const dT = 0.6;  
 
 	var clock = new THREE.Clock();
@@ -110,14 +110,22 @@
 		printTwent(aNew, debug,"aNew" + i);
 		
                 v[i].add(aNew.multiplyScalar(dT));
+		v[i].add(multiplyScalar(v[i],-FF));
 		printTwent(v[i], debug,"v" + i);
 		var vNew = v[i].clone();
-		var e = multiplyScalar(vNew, dT * FF);
+		var e = multiplyScalar(vNew, dT);
 		var t = add(points[i],e);
-		if (t.length() >= 10) {
+		var len = t.length();
+		if (len >= sphereRadius) {
 			e.reflect(t.negate().normalize());
 			v[i] = e.clone().normalize().multiplyScalar(v[i].length());
+
+			
 		} 
+
+		
+		
+		
                 points[i].add(e);
 		printTwent(points[i], debug,"point" + i);
 		debug++;
