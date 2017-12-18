@@ -10,11 +10,11 @@
 <body>
     <script>
         const sphereRadius = 10;
-        const N = 2;
+        const N = 10;
 	const power = 2;
 	const pointRadius = 0.5;
-        const FF = 0.5; //friction force
-        const dT = 0.01;  
+        const FF = 0.7; //friction force
+        const dT = 0.1;  
 
 	var clock = new THREE.Clock();
         var temp = 0;
@@ -24,7 +24,7 @@
 	var charge = [];
         var v = []; // velocity
 
-        var emptyVector = new THREE.Vector3();
+      
 
         function random(min, max) {
             return Math.random() * (max - min) + min;
@@ -55,7 +55,7 @@
             var point = new THREE.Vector3(random(-5.9,5.9),random(-5.9,5.9),random(-5.9,5.9));
             points.push(point);
 
-            v.push(emptyVector); // add speed 0
+            v.push(new THREE.Vector3()); // add speed 0
 
 	    charge.push((i % 2 == 0) ? -1 : 1); // add charge 
             pointG.isPoint__ = true;
@@ -82,28 +82,41 @@
             var a;
             for (i = 0; i < N; i++) {
 
-                a = emptyVector;
+                a = new THREE.Vector3();
                 for (j = 0; j < N; j++) {
 
                     if (i != j) {
                         r = points[i].distanceTo(points[j]);
 
+			if (r < 2 * pointRadius + 0.5) {
+				neg = 1;
+			} else 
+				{
+				neg = -1;
+}
 			
 				
 			var sumCharge = charge[i] * charge[j];
 			var norm = (new THREE.Vector3(points[j].x - points[i].x,points[j].y - points[i].y, points[j].z - points[i].z)).normalize();
-                        var f = norm.multiplyScalar(sumCharge / Math.pow(r, power));
-			
+			printTwent(norm, debug,"norm");
+                        var f = norm.multiplyScalar(neg * sumCharge / Math.pow(r, power));
+			printTwent(f, debug,"f");
 			a.add(f);
 			
                     }
                 }
 		
 		var aNew = a.clone();
+		printTwent(aNew, debug,"aNew" + i);
+		
                 v[i].add(aNew.multiplyScalar(dT));
+		printTwent(v[i], debug,"v" + i);
 		var vNew = v[i].clone();
+
 		
                 points[i].add(vNew.multiplyScalar(dT * FF));
+		printTwent(points[i], debug,"point" + i);
+		debug++;
 		
 
             }
@@ -111,10 +124,11 @@
                 
         }
 
-	function printTwent(o) {
-		if (debug < 20) {
+	function printTwent(o,count,msg) {
+		if (count < 20) {
+			console.log(msg);
 			console.log(o);
-			debug++;
+			
 		}
 	}
 
