@@ -50,7 +50,7 @@
         
         for (i = 0; i < N; i++) {
             var geometry = new THREE.SphereGeometry(pointRadius, 4, 4);
-            var wireframeMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: false, transparent: false }); 
+            var wireframeMaterial = new THREE.MeshBasicMaterial({ color: Math.floor(Math.random()*16777215), wireframe: false, transparent: false }); 
             var pointG = new THREE.Mesh(geometry, wireframeMaterial);
             var point = new THREE.Vector3(random(-5.9,5.9),random(-5.9,5.9),random(-5.9,5.9));
             points.push(point);
