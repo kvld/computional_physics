@@ -14,7 +14,7 @@
 <body>
     <table width="100%" height="100%">
         <tr>
-            <td width="35%">
+            <td width="30%">
                 <div id="controls">
                     <input value="Stop/Start" onclick="action()" type="button">
                 </div>
@@ -23,23 +23,23 @@
                 <br><br><br>
                 <div id="speed"></div>
             </td>
-            <td width="65%"><div id="scene"></div></td>
+            <td width="70%"><div id="scene"></div></td>
         </tr>
     </table>
     <script>
         const sphereRadius = 10;
         const N = 20;
-	    const power = 2;
-	    const pointRadius = 0.1;
+        const power = 2;
+        const pointRadius = 0.1;
         const FF = 0.1; //friction force
         const dT = 0.1;  
 
-	    var clock = new THREE.Clock();
+        var clock = new THREE.Clock();
         var temp = 0;
         
         var debug = 0;
         var points = [];
-	    var charge = [];
+        var charge = [];
         var v = []; // velocity
 
         var stop = false;
@@ -55,7 +55,7 @@
         var scene = new THREE.Scene();
 
         var sceneDiv = document.getElementById("scene");
-        var sceneWidth = window.innerWidth * 0.65
+        var sceneWidth = window.innerWidth * 0.7
         var sceneHeight = window.innerHeight
 
         var camera = new THREE.PerspectiveCamera(50, sceneWidth / sceneHeight, 0.1, 50);
@@ -82,13 +82,13 @@
 
             v.push(new THREE.Vector3()); // add speed 0
 
-    	    charge.push(1); // add charge 
+            charge.push(1); // add charge 
             pointG.isPoint__ = true;
             scene.add(pointG);
             pointG.position.copy(point);
 
             // divs
-            if (i < 15) {
+            if (i < 10) {
                 var div = document.createElement('div');
 
                 div.id = 'pos-' + i;
@@ -102,7 +102,6 @@
                 document.getElementById('speed').appendChild(div);
             }
         }
-        charge[0] = 10;
 
         controls = new THREE.TrackballControls(camera);
         controls.rotateSpeed = 5.0;
@@ -126,41 +125,42 @@
                 for (j = 0; j < N; j++) {
                     if (i != j) {
                         r = points[i].distanceTo(points[j]);
-			            if (r < 2 * pointRadius + 0.5) {
-				            neg = 1;
-			            } else {
-				            neg = -1;
+                        if (r < 2 * pointRadius + 0.5) {
+                            neg = 1;
+                        } else {
+                            neg = -1;
                         }
-				
-			            var sumCharge = charge[i] * charge[j];
-			            var norm = (new THREE.Vector3(points[j].x - points[i].x,points[j].y - points[i].y, points[j].z - points[i].z)).normalize();
-			            printTwent(norm, debug,"norm");
+                
+                        var sumCharge = charge[i] * charge[j];
+                        var norm = (new THREE.Vector3(points[j].x - points[i].x,points[j].y - points[i].y, points[j].z - points[i].z)).normalize();
+                        printTwent(norm, debug,"norm");
                         var f = norm.multiplyScalar(neg * sumCharge / Math.pow(r, power));
-			            printTwent(f, debug,"f");
-			            a.add(f);
+                        printTwent(f, debug,"f");
+                        a.add(f);
                     }
                 }
-		
-		        var aNew = a.clone();
-		        printTwent(aNew, debug,"aNew" + i);
-		
+        
+                var aNew = a.clone();
+                printTwent(aNew, debug,"aNew" + i);
+        
                 v[i].add(aNew.multiplyScalar(dT));
-        		v[i].add(multiplyScalar(v[i],-FF*dT));
-        		printTwent(v[i], debug,"v" + i);
-        		var vNew = v[i].clone();
-        		var e = multiplyScalar(vNew, dT);
-        		var t = add(points[i],e);
-        		var len = t.length();
-        		if (len >= sphereRadius) {
-        			e.reflect(t.negate().normalize());
-        			v[i] = e.clone().normalize().multiplyScalar(v[i].length());
-        		} 
+                v[i].add(multiplyScalar(v[i],-FF*dT));
+                printTwent(v[i], debug,"v" + i);
+                var vNew = v[i].clone();
+                var e = multiplyScalar(vNew, dT);
+                var t = add(points[i],e);
+                var len = t.length();
+                if (len >= sphereRadius && points[i].length() < sphereRadius) {
+                    e.reflect(t.negate().normalize());
+                    v[i] = e.clone().normalize().multiplyScalar(v[i].length());
+                    v[i].add(multiplyScalar(v[i], -FF * dT));
+                } 
 
                 points[i].add(e);
-		        printTwent(points[i], debug,"point" + i);
-		        debug++;
+                printTwent(points[i], debug,"point" + i);
+                debug++;
 
-                if (i < 15) {
+                if (i < 10) {
                     var div = document.getElementById("pos-" + i);
                     div.innerHTML = i + " : x=" + points[i].x.toFixed(4) + ", y = " + points[i].y.toFixed(4) + ", z = " + points[i].z.toFixed(4);
 
@@ -170,20 +170,20 @@
             }
         }
 
-    	function add(f, s) {
-    		return new THREE.Vector3(f.x + s.x, f.y + s.y, f.z + s.z);
-    	}
+        function add(f, s) {
+            return new THREE.Vector3(f.x + s.x, f.y + s.y, f.z + s.z);
+        }
 
-    	function multiplyScalar(v, s) {
-    		return new THREE.Vector3(v.x * s, v.y * s, v.z * s);
-    	}
+        function multiplyScalar(v, s) {
+            return new THREE.Vector3(v.x * s, v.y * s, v.z * s);
+        }
 
-    	function printTwent(o,count,msg) {
-    		if (count < 20) {
-    			console.log(msg);
-    			console.log(o);
-    		}
-    	}
+        function printTwent(o,count,msg) {
+            if (count < 20) {
+                console.log(msg);
+                console.log(o);
+            }
+        }
 
         var render = () => {
             requestAnimationFrame(render);
